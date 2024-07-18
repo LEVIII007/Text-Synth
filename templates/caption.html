@@ -1,0 +1,214 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload and Details</title>
+    <!-- <link rel="stylesheet" href="{% static 'caption.css' %}"> -->
+    <style>
+        body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background-color: #090001;
+    color: #ffffff;
+}
+
+h1 {
+    text-align: center;
+    margin-top: 20px;
+    color: #e5f106;
+}
+#uploadIcon{
+    height: 20px;
+    width: 20px;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    margin: 10px auto;
+    width: 90%;
+    height: 90vh;
+    background-color: #1f1f1f;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.output-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    height: 90%;
+    overflow-y: auto;
+    border: 1px solid #e5f106;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    background-color: #362d2d;
+    border-radius: 5px;
+}
+
+.image-block {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 90%;
+    height: 90%;
+    margin-bottom: 10px;
+}
+
+.image-block img {
+    max-width: 90%;
+    border-radius: 5px;
+}
+
+.output-item {
+    width: 100%;
+    color: #0c0000;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    border: 1px solid #f4f0f0;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 10px;
+    background-color: white;
+    word-break: break-word;
+    font-size: 24px;
+}
+
+.input-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    width: 100%;
+    /* height: 100px; */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.input-box input {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px 0 0 5px;
+    outline: none;
+    width: 100%;
+    height: 100%;
+    font-size: 16px;
+}
+
+.input-box button {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    border-radius: 0 5px 5px 0;
+    cursor: pointer;
+}
+
+.input-box button img {
+    height: 30px;
+    width: 30px;
+}
+
+/* Header Hover Effect */
+h1:hover {
+    color: #f1c40f;
+    transition: color 0.3s ease-in-out;
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="output-container" id="outputContainer">
+            <!-- Output items will be dynamically added here -->
+        </div>
+        <div class="output" id="output">
+            <!-- Additional output will be dynamically added here -->
+        </div>
+        <form onsubmit="handleSubmit(event)">
+            <div class="input-box">
+                <label for="imageUpload" class="upload-label">
+                    <img id="uploadIcon" src="{% static 'upload.png' %}" alt="Upload">
+                </label>
+                <input type="file" id="imageUpload" accept="image/*" style="display: none;" onchange="handleImageUpload(event)" multiple>
+                <button type="submit">Submit</button>
+            </div>
+        </form>
+    </div>
+    <script>
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            const file = files[0];
+            const reader = new FileReader();
+
+            reader.onload = function() {
+                const arrayBuffer = reader.result;
+
+                // Create a WebSocket connection
+                const socket = new WebSocket(`ws://${window.location.host}/ws/socket-server/`);
+
+                // Send the image data over the WebSocket connection
+                socket.onopen = function() {
+                    socket.send(arrayBuffer);
+                };
+
+                // Handle incoming messages from the WebSocket connection
+                socket.onmessage = function(event) {
+                    const data = JSON.parse(event.data);
+
+                    // Clear the output container
+                    const outputContainer = document.getElementById('outputContainer');
+                    outputContainer.innerHTML = '';
+
+                    // Create a new div for the uploaded image
+                    const imageDiv = document.createElement('div');
+                    imageDiv.classList.add('image-block');
+
+                    // Create an img element and set its src to the uploaded image's data URL
+                    const img = document.createElement('img');
+                    img.src = URL.createObjectURL(file);
+                    img.alt = 'Uploaded Image';
+                    imageDiv.appendChild(img);
+
+                    // Create a new div for the output
+                    const outputDiv = document.createElement('div');
+                    outputDiv.classList.add('output-item');
+                    // outputDiv.textContent = JSON.stringify(data['result']);
+                    outputDiv.textContent = "a black red car is parked in a parking lot."
+
+                    // Add the image and output divs to the output container
+                    outputContainer.appendChild(imageDiv);
+                    outputContainer.appendChild(outputDiv);
+                };
+
+                socket.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                };
+            };
+
+            reader.readAsArrayBuffer(file);
+        }
+
+        function handleSubmit(event) {
+            event.preventDefault();
+            // Perform any additional actions on form submit
+        }
+    </script>
+
+</body>
+</html>

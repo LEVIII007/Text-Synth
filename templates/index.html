@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="{% static 'index.css' %}">
+</head>
+<body>
+    <header>
+        <img src="{% static 'icon.jpeg' %}" alt="Site Icon" class="site-icon">
+        <h1 class="site-title">GPT - Negative</h1>
+    </header>
+    <div class="feature-container">
+        <div class="feature-box">
+            <a href="{% url 'Translation' %}" class="link" target="_blank">Text Translation</a>
+            <p class="feature-description">Translate English text to French preciesly.</p>
+        </div>
+        <div class="feature-box">
+            <a href="{% url 'caption' %}" class="link" target="_blank">Caption Generation</a>
+            <p class="feature-description">Automatically generate captions for images with advanced AI.</p>
+        </div>
+        <div class="feature-box">
+            <a href="{% url 'Text' %}" class="link" target="_blank">Text Generation</a>
+            <p class="feature-description">Generate creative and coherent text based on your input prompts.</p>
+        </div>
+        <div class="feature-box">
+            <a href="{% url 'sentiment' %}" class="link" target="_blank">Text Analysis</a>
+            <p class="feature-description">Analyze and understand the content and sentiment of any text.</p>
+        </div>
+    </div>
+</body>
+</html>

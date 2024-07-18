@@ -1,0 +1,68 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation</title>
+    <link rel="stylesheet" href="{% static 'Translation.css' %}">
+</head>
+<body>
+    <h1>Text Translation</h1>
+    <div class="container">
+        <div class="output-container">
+            <div id="output"></div>
+        </div>
+        <div class="input-box">
+            <input type="text" id="translation" placeholder="Enter text">
+            <button id="b" onclick="renderText()">
+                <img src="{% static 'button.jpg' %}" alt="Error" height="20px">
+            </button>
+        </div>
+    </div>
+    <!-- <script> -->
+    <script>
+            function renderText() {
+            const socket = new WebSocket(`ws://${window.location.host}/ws/trans-server/`);
+            var inputText = document.getElementById("translation").value;
+            var outputContainer = document.getElementById("output");
+            var inputItem = document.createElement("div");
+            socket.onopen = function() {
+            socket.send(JSON.stringify({ text: inputText }));
+            };
+            socket.onmessage = function(event){
+            const data = JSON.parse(event.data);
+            const text = data["translated"];
+            // Jo karna hai yaha karna
+            let socket_data = text;
+            let inputItem1 = document.createElement("div");
+            let inputItem2 = document.createElement("div");
+            inputItem1.classList.add("input-item");
+            inputItem2.classList.add("output-item");
+            inputItem1.textContent = inputText;
+            inputItem2.textContent = socket_data;
+            outputContainer.appendChild(inputItem1);
+            outputContainer.appendChild(inputItem2);
+            document.getElementById("translation").value = "";
+            }
+            socket.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                };
+        }
+
+            function test() {
+            renderText();
+            renderTime();
+            document.getElementById("translation").value = "";
+            }
+
+            document.getElementById("translation").addEventListener("keyup", function(event) {
+            if (event.keyCode === 13) {
+                event.preventDefault();
+                test();
+            }
+            });
+        
+    </script>
+</body>
+</html>

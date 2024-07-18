@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translation</title>
+    <link rel="stylesheet" href="{% static 'Text.css' %}">
+</head>
+<body>
+    <h1>Text Generator</h1>
+    <div class="container">
+        <div class="output-container">
+            <div id="output"></div>
+        </div>
+        <div class="input-box">
+            <input type="text" id="Text" placeholder="Enter text">
+            <button id="b" onclick="output()">
+                <img src="{% static 'button.jpg' %}" alt="Error" height="20px">
+            </button>
+        </div>
+    </div>
+    <script>
+        function output() {
+    const socket = new WebSocket(`ws://${window.location.host}/ws/generation-server/`);
+    const input = document.getElementById("Text").value;
+    if (input !== "") {
+        const inputDiv = document.createElement("div");
+        inputDiv.textContent = `Input: ${input}`;
+        inputDiv.classList.add("input-item");
+
+        const outputDiv = document.getElementById("output");
+        outputDiv.appendChild(inputDiv);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+
+        socket.onopen = function() {
+            socket.send(JSON.stringify({ text: input }));
+            };
+        document.getElementById("Text").value = "";
+    } else {
+        alert("Please enter a text");
+    }
+
+    socket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+// const text = data["generated_text"];
+        const text = "Once upon a time, there was a boy named jack after the London. He was known as the enemy of the Pacific and the adversary of the wireless station at Nauru. The Japanese forces on the island had established a radio station at Nauru, as well as in the Caroline Islands and Angu. The station in Australia was now open for operation. The station would cover transactions, and soon, the mast was being erected at the station. The station was now coming to life, its signals reaching far and wide, as the boy watched the unfolding events with keen interest."
+        console.log(text);
+        const newOutput = document.createElement("div");
+        newOutput.textContent = `Output: ${text}`;
+        newOutput.classList.add("output-item");
+
+        const outputDiv = document.getElementById("output");
+        outputDiv.appendChild(newOutput);
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+    };
+}
+
+document.getElementById("Text").addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+        output();
+    }
+});
+
+    </script>
+</body>
+</html>
